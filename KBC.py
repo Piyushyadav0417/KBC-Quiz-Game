@@ -1,5 +1,7 @@
 import random
 
+
+
 # Define the questions for each difficulty level
 QUESTIONS = {
     "easy": [
@@ -90,8 +92,11 @@ PRIZES = {
     "hard": [10000, 20000, 50000, 100000, 200000]
 }
 
-# Function to play each level
+
+# Function to play each level with random question order
 def play_level(level, questions, prizes):
+    random.shuffle(questions)  # Randomize question order for the level
+
     for i in range(len(questions)):
         question = questions[i]
         print(f"\n\nQuestion for Rs. {prizes[i]}")
@@ -105,12 +110,12 @@ def play_level(level, questions, prizes):
             print(f"Correct answer! You have won Rs. {prizes[i]}")
         else:
             print(f"Incorrect answer! You take home Rs. {prizes[i-1] if i > 0 else 0}")
-            return prizes[i-1] if i > 0 else 0
+            return False  # Player lost this level
 
-    print(f"Congratulations! You have won Rs. {prizes[-1]}")
-    return prizes[-1]
+    print(f"Congratulations! You have completed this level and secured Rs. {prizes[-1]} as a milestone!")
+    return prizes[-1]  # Return the milestone amount for the completed level
 
-# Main game logic
+# Main game logic with milestone tracking across levels
 def main_game():
     difficulty = input("Select difficulty (easy, medium, hard): ").lower()
     
@@ -118,15 +123,20 @@ def main_game():
         print("Invalid difficulty level selected!")
         return
 
-    total_winnings = 0
+    total_winnings = 0  # Track cumulative winnings across levels
 
     for level in range(3):
         print(f"\nLEVEL {level + 1} ({difficulty.upper()} MODE)")
-        total_winnings = play_level(level, QUESTIONS[difficulty][level], PRIZES[difficulty])
         
-        if total_winnings < PRIZES[difficulty][-1]:
-            break
+        # Play the level and capture if the level was completed successfully
+        level_milestone = play_level(level, QUESTIONS[difficulty][level], PRIZES[difficulty])
         
+        if level_milestone:
+            total_winnings += level_milestone  # Add completed level prize to total winnings
+        else:
+            break  # Stop game if player loses in the level
+        
+        # Ask if the player wants to continue if they successfully completed the level
         if level < 2:
             if input("Press Enter to proceed to the next level or type 'quit' to exit with your winnings: ").lower() == "quit":
                 break
